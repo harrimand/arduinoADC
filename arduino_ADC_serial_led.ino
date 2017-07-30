@@ -12,8 +12,6 @@
  *      reset counter
 */
 
-//#define debugMode //Uncomment this line to display Analog Result on serial monitor.
-
 //Preprocessor (Compiler) definitions
 #define FOSC 16000000 // Clock Speed
 #define BAUD 9600
