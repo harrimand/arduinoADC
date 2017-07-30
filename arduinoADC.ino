@@ -1,10 +1,14 @@
 #include <avr/io.h>
 
+//#define debugMode //Uncomment this line to display Analog Result on serial monitor.
+
 volatile uint8_t data = 0;  //Analog to Digital Conversion result
 uint16_t counter = 0; 
 
 void setup() {
-//  Serial.begin(9600);
+#ifdef debugMode
+  Serial.begin(9600);
+#endif
   DDRB = 0x0F;  //PORTB 3..0 Pins 11..8 Output for upper 4 bits of data to LEDs
   DDRD = 0xF0;  //PORTD 7..4 Pins 7..4 Output for lower 4 bits of data to LEDs
   DDRC = (1<<PC2)|(0<<PC1)|(1<<PC0);  //PORTC 2 = Pot Ground, 1 = Analog In, 0 = Pot Vcc
@@ -17,10 +21,12 @@ void setup() {
   PRR = PRR & 0xEE;   //Power Reduction Register Analog to Digital Converter turned on.
   //Configure Analog to digital Converter.  ADC enabled, AutoTrigger off, ADC clock = F_cpu/128 
   ADCSRA = (1<<ADEN)|(0<<ADSC)|(0<<ADATE)|(1<<ADIF)|(0<<ADIE)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
-//  Serial.print("ADMUX = ");
-//  Serial.print(ADMUX, HEX);
-//  Serial.print("  ADCSRA = ");
-//  Serial.println(ADCSRA, HEX);
+#ifdef debugmode
+  Serial.print("ADMUX = ");
+  Serial.print(ADMUX, HEX);
+  Serial.print("  ADCSRA = ");
+  Serial.println(ADCSRA, HEX);
+#endif
 }
 
 void loop() {
@@ -40,7 +46,9 @@ ISR(TIMER2_OVF_vect){
   counter ++;   //count every 31.25 microSeconds
   if(counter == 640){ //640 * 31.25 uS = .02 Sec.  (.02 Second update = 50 Hz)
     data = ADCH;  //Read 8 bit ADC High value
-//    Serial.println(data);
+#ifdef debugMode
+    Serial.println(data);
+#endif
     portByte(data); //Output function to split 8 bit number across Port B & D
     //Start ADC conversion, Clear ADC Interrupt Flag, AutoTrigger off, ADC clock = F_cpu/128
     ADCSRA = (1<<ADEN)|(1<<ADSC)|(0<<ADATE)|(1<<ADIF)|(0<<ADIE)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
