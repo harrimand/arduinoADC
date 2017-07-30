@@ -12,8 +12,6 @@
  *      reset counter
 */
 
-#include <avr/io.h>
-
 //#define debugMode //Uncomment this line to display Analog Result on serial monitor.
 
 //Preprocessor (Compiler) definitions
