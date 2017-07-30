@@ -23,7 +23,7 @@
 
 volatile uint8_t data = 0;  //Analog to Digital Conversion result
 uint16_t counter = 0; 
-volatile uint8_t decStr[4];
+volatile uint8_t decStr[4]; //3 digits plus newline character
 
 void setup() {
 
