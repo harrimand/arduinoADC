@@ -1,3 +1,16 @@
+/*  Darrell Harriman  harrimand @ gmail.com
+ *  Platfrom:  Arduino Uno 
+ *  Example C Program configuring Timer 2 for a 32 KHz Overflow Interrupt
+ *  Overflow Interrupt Service Routine: 
+ *    Increment counter
+ *    If counter == 640
+ *      Read the Analog to Digital (ADC) conversion result  (Analog Input A1)
+ *      [Optional debugMode prints ADC result to Serial Monitor or Plotter]
+ *      Call portByte() function to display upper 4 bits on PortB and lower 4 bits on PortD
+ *      Start new ADC conversion
+ *      reset counter
+*/
+
 #include <avr/io.h>
 
 //#define debugMode //Uncomment this line to display Analog Result on serial monitor.
@@ -9,6 +22,7 @@ void setup() {
 #ifdef debugMode
   Serial.begin(9600);
 #endif
+
   //Port/Pin Input/Output Configuration
   DDRB = 0x0F;  //PORTB 3..0 Pins 11..8 Output for upper 4 bits of data to LEDs
   DDRD = 0xF0;  //PORTD 7..4 Pins 7..4 Output for lower 4 bits of data to LEDs
