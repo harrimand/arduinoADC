@@ -10,21 +10,32 @@
  *      Call portByte() function to display upper 4 bits on PortB and lower 4 bits on PortD
  *      Start new ADC conversion
  *      reset counter
+ *    Increment blinkCounter
+ *    If blinkCounter == blinkDelay
+ *      Toggle blinkDelay between 24000 and 1200 for short on time and long off time
+ *      Toggle PB5 (Pin 13 LED)
+ *      reset blinkCounter
 */
+
+//#define debugMode //Uncomment this line to display Analog Result on serial monitor.
 
 //Preprocessor (Compiler) definitions
 #define FOSC 16000000 // Clock Speed
 #define BAUD 9600
 #define MYUBRR FOSC/16/BAUD-1
+#define LEDonTime 1200 // 1200 * 31.25 uS = .0375 Seconds
+#define LEDoffTime 24000 //24000 * 31.25 uS = .75 Seconds 
 
 volatile uint8_t data = 0;  //Analog to Digital Conversion result
 uint16_t counter = 0; 
-volatile uint8_t decStr[4]; //3 digits plus newline character
+uint16_t blinkCounter = 0;
+uint16_t blinkDelay = 24000;
+volatile uint8_t decStr[4];  //Up to 3 digits plus a newline character 
 
 void setup() {
 
   //Port/Pin Input/Output Configuration
-  DDRB = 0x0F;  //PORTB 3..0 Pins 11..8 Output for upper 4 bits of data to LEDs
+  DDRB = 0x2F;  //PORTB 3..0 Pins 11..8 Output for upper 4 data bits. PB5->Pin 13
   DDRD = 0xF0;  //PORTD 7..4 Pins 7..4 Output for lower 4 bits of data to LEDs
   DDRC = (1<<PC2)|(0<<PC1)|(1<<PC0);  //PORTC 2 = Pot Ground, 1 = Analog In, 0 = Pot Vcc
   PORTC = (0<<PC2)|(0<<PC1)|(1<<PC0); //Output 5 V to Pot Vcc
@@ -77,6 +88,12 @@ ISR(TIMER2_OVF_vect){
     //Start ADC conversion, Clear ADC Interrupt Flag, AutoTrigger off, ADC clock = F_cpu/128
     ADCSRA = (1<<ADEN)|(1<<ADSC)|(0<<ADATE)|(1<<ADIF)|(0<<ADIE)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
     counter = 0;
+  }
+  blinkCounter ++;
+  if(blinkCounter == blinkDelay){
+    blinkDelay = (PINB & (1<<PB5)) ? LEDoffTime : LEDonTime; 
+    PINB = (1<<PB5);  //Toggle Arduino Pin 13
+    blinkCounter = 0;
   }
 }
 
